@@ -104,8 +104,6 @@ def get_git_project_files():
 
     # Since sorting of files in a set is arbitrary, return a sorted list to
     # provide a well-defined order to tools like flake8, etc.
-    print(uncommitted_deleted_files)
-    print(cached_and_untracked_files)
     return sorted(cached_and_untracked_files - uncommitted_deleted_files)
 
 
@@ -168,8 +166,10 @@ def _lint():
     # Python 3 compat:
     # - The result of subprocess call outputs are byte strings, meaning we need
     #   to pass a byte string to endswith.
+    REPO_SCAFFOLD = [b'docs/source/conf.py', b'pavement.py', b'setup.py']
     project_python_files = [filename for filename in get_project_files()
-                            if filename.endswith(b'.py')]
+                            if filename.endswith(b'.py') and filename not
+                            in REPO_SCAFFOLD]
     retcode = subprocess.call(
         ['flake8', '--max-complexity=10'] + project_python_files)
     if retcode == 0:

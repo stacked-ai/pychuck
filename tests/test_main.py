@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# noqa
 from pytest import raises
 
 # The parametrize function is generated, so this doesn't work:
@@ -9,8 +8,8 @@ from pytest import raises
 import pytest
 parametrize = pytest.mark.parametrize
 
-from pychuck import metadata
-from pychuck.main import main
+from pychuck import metadata  # noqa
+from pychuck.main import main  # noqa
 
 
 class TestMain(object):
@@ -27,4 +26,3 @@ class TestMain(object):
         assert 'progname' in out
         # Should exit with zero return code.
         assert exc_info.value.code == 0
-
