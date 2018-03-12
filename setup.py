@@ -35,16 +35,16 @@ except ImportError:
 sys.path.insert(0, os.path.abspath('.'))
 
 ## Constants
-CODE_DIRECTORY = '$package'
+CODE_DIRECTORY = 'pychuck'
 DOCS_DIRECTORY = 'docs'
 TESTS_DIRECTORY = 'tests'
 PYTEST_FLAGS = ['--doctest-modules']
 
 # Import metadata. Normally this would just be:
 #
-#     from $package import metadata
+#     from pychuck import metadata
 #
-# However, when we do this, we also import `$package/__init__.py'. If this
+# However, when we do this, we also import `pychuck/__init__.py'. If this
 # imports names from some other modules and these modules have third-party
 # dependencies that need installing (which happens after this file is run), the
 # script will crash. What we do instead is to load the metadata module by path
@@ -104,6 +104,8 @@ def get_git_project_files():
 
     # Since sorting of files in a set is arbitrary, return a sorted list to
     # provide a well-defined order to tools like flake8, etc.
+    print(uncommitted_deleted_files)
+    print(cached_and_untracked_files)
     return sorted(cached_and_untracked_files - uncommitted_deleted_files)
 
 
@@ -266,11 +268,11 @@ setup_dict = dict(
     zip_safe=False,  # don't use eggs
     entry_points={
         'console_scripts': [
-            '${package}_cli = ${package}.main:entry_point'
+            'pychuck_cli = pychuck.main:entry_point'
         ],
         # if you have a gui, use this
         # 'gui_scripts': [
-        #     '${package}_gui = ${package}.gui:entry_point'
+        #     'pychuck_gui = pychuck.gui:entry_point'
         # ]
     }
 )

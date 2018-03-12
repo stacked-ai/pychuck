@@ -40,3 +40,7 @@ pip-log.txt
 ## IntelliJ Stuff
 .idea
 .idea/*
+
+## pytest
+.pytest_cache/*
+.pytest_cache

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Feeds Data Into Machine Learning Applications'"""
+"""$description"""
 
-from pychuck import metadata
+from $package import metadata
 
 
 __version__ = metadata.version
