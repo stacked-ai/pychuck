@@ -8,3 +8,6 @@ to partition files
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
+
+from pychuck.sampler.new_line import NewLineSampler  # noqa
+from pychuck.sampler.new_line.csv import TabularCsvSampler  # noqa

@@ -2,7 +2,7 @@
 """Feeds Data Into Machine Learning Applications'"""
 
 from pychuck import metadata
-
+from pychuck import sampler  # noqa
 
 __version__ = metadata.version
 __author__ = metadata.authors[0]

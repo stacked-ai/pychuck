@@ -268,7 +268,7 @@ setup_dict = dict(
     zip_safe=False,  # don't use eggs
     entry_points={
         'console_scripts': [
-            'pychuck_cli = pychuck.main:entry_point'
+
         ],
         # if you have a gui, use this
         # 'gui_scripts': [

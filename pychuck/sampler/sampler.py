@@ -62,16 +62,18 @@ class FileMap(object):
         Returns:
              Namespace: fields fullpath, start, end)
         Raises:
-            EndOfMap: When the end of the map is reached (epoch), the EndofMap
-              exception is raised and the index is reset
+            EndOfEpoch: When the end of the map is reached (epoch), the
+              EndofEpoch exception is raised and the index is reset
         """
+
         try:
             next_map = self.map[self.index + 1]
             self.index += 1
             return next_map
+
         except IndexError:
             self.index = -1
-            raise EndOfMap("EOM Reached")
+            raise EndOfEpoch("EOM Reached")
 
     @classmethod
     def verbose_from_list(cls, file_list):
@@ -125,6 +127,9 @@ class Sampler(object):
     def open(self, mode='rb'):
         self._open_reader(mode)
 
+    def close(self):
+        self._close_reader()
+
     @staticmethod
     @abstractmethod
     def _get_next_pos(filename, bytes_offset):
@@ -154,8 +159,27 @@ class Sampler(object):
         """
         pass
 
+    @staticmethod
+    def _partition_split_helper(split_map, no_workers, shuffled):
+
+        partition = [FileMap() for _ in range(no_workers)]
+        smap = split_map.map
+        if shuffled:
+            shuffle(smap)
+
+        while smap:
+            for file_map in partition:
+                try:
+                    next_add = smap.pop()
+                except IndexError:
+                    break
+                file_map.add_file(next_add.fullpath,
+                                  next_add.start,
+                                  next_add.end)
+        return partition
+
     @classmethod
-    def partition(cls, filenames, no_workers, shuffled=False):
+    def partition(cls, filenames, no_workers, **kwargs):
         """
         This method will partion the file(s) evenly,
         in number of bytes, and return a list of samplers
@@ -165,11 +189,16 @@ class Sampler(object):
             no_workers: int, the number of worker
             shuffled: bool, whether or not to shuffle the files into
               the partitions
+            **kwargs: depends on implementation
 
         Returns:
             [Sampler]: a list of samplers, length no_workers
         """
-        big_file_map = FileMap.verbose_from_list(filenames).map
+        shuffled = kwargs.get('shuffled', False)
+        big_file_map = FileMap.verbose_from_list(filenames)
+        if no_workers == 1:
+            return cls(big_file_map)
+        big_file_map = big_file_map.map
         total_bytes = 0
         for each_file in big_file_map:
             total_bytes += int(each_file.end)
@@ -205,31 +234,15 @@ class Sampler(object):
                             file_map.fullpath,
                             tmp_offset + target_offset) - 1
                     except EndOfFile as e:
-                        print("SOMETHING WAY WRONG BRO")
-                        raise e
+                        raise EndOfFile("Unexpected EOF while partitioning"
+                                        " file_map {}".format(file_map))
                     # add the range of bytes to the file offset
                     split_map.add_file(file_map.fullpath,
                                        tmp_offset,
                                        current_file_offset)
                     # update current offset
                     current_offset += current_file_offset - tmp_offset
+        partition = cls._partition_split_helper(
+            split_map, no_workers, shuffled)
 
-        partition = [FileMap() for _ in range(no_workers)]
-
-        map = split_map.map
-        print("MAP ", map)
-        if shuffled:
-            shuffle(map)
-
-        while map:
-            for file_map in partition:
-                try:
-                    next_add = map.pop()
-                except IndexError:
-                    break
-                print(next_add)
-                file_map.add_file(next_add.fullpath,
-                                  next_add.start,
-                                  next_add.end)
-
-        return [cls(file_map) for file_map in partition]
+        return [cls(file_map, **kwargs) for file_map in partition]

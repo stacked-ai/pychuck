@@ -44,3 +44,7 @@ pip-log.txt
 ## pytest
 .pytest_cache/*
 .pytest_cache
+
+## test data local
+test_data/*
+test_data
